@@ -85,6 +85,15 @@ on macOS with Skia rendering. To migrate:
 | `Uno.WinUI` UI assemblies for `net*-android/ios/tvos` are now the Skia binaries | Same TFM string, but binary-incompatible with previously native-built consumers. Recompile all libraries against 7.0 and remove native bootstrap. |
 | `Xamarin.AndroidX.*` transitive deps removed (AppCompat, RecyclerView, Activity, Browser, SwipeRefreshLayout) | If *your own* code uses AndroidX, add explicit `PackageReference`s. |
 | Windows App SDK default moved from 1.7 to 2.3.1 | Windows heads now build against Windows App SDK 2.x, so packaged apps take a framework dependency on `Microsoft.WindowsAppRuntime.2` and end users need the matching [Windows App Runtime](https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads) — 2.3.1 or later from the **Stable release** section — installed. To stay on 1.x, set `<WinAppSdkVersion>` (and `<WinAppSdkBuildToolsVersion>`) explicitly in your Windows head. |
+| `Uno.dll` renamed to `Uno.WinRT.dll` | The assembly holding the non-UI WinRT APIs (the `Windows.*` projections for storage, sensors, networking, …) now matches the `Uno.WinRT` package that has always shipped it. No namespace or type changed. Only code that names the assembly itself needs updating — `InternalsVisibleTo`, ILLink/trimming descriptors, `Assembly.Load`, or an explicit `<Reference Include="Uno" />`. |
+| `Uno.UI.Toolkit.dll` renamed to `Uno.UI.Extras.dll` | The old name was routinely confused with the separate Uno Toolkit (`Uno.Toolkit.UI`). Update `using Uno.UI.Toolkit;` to `using Uno.UI.Extras;` and `xmlns:toolkit="using:Uno.UI.Toolkit"` to `using:Uno.UI.Extras`. Types keep their names. `Uno.Diagnostics.UI`, `Uno.UI.Markup`, `Uno.Helpers` and `Uno.UI.Maps` are unaffected — only the `Uno.UI.Toolkit*` namespaces moved. |
+
+> [!IMPORTANT]
+> Both renames are hard renames — there are no type-forwarders and no `xmlns` alias.
+> Because `Uno.dll` and `Uno.WinRT.dll` are *different assembly identities*, a 7.0 app that
+> still pulls a library compiled against Uno 6.x can end up with every `Windows.*` type
+> defined twice, which surfaces as ambiguous-type errors rather than a missing reference.
+> Recompile every dependent library against 7.0 rather than mixing majors.
 
 > [!NOTE]
 > Referencing `Uno.WinUI.WebAssembly` (or the older `Uno.WinUI.Runtime.WebAssembly`)
