@@ -4,6 +4,42 @@
 	<PageExclusions>$(MSBuildThisFileDirectory)Resources\**\*.xaml</PageExclusions>
   </PropertyGroup>
 
+  <ItemGroup>
+	<!-- Expand merge inputs at evaluation time so target incremental checks can compare timestamps. -->
+	<ThemeResourceMergeInput Include="$(MSBuildThisFileDirectory)Resources\**\*.xaml" />
+	<ThemeResourceMergeInput Include="$(MSBuildThisFileFullPath)" />
+  </ItemGroup>
+
+  <!-- This task is temporarily placed in debug configuration to avoid parallel build concurrency issues -->
+  <Target Name="GenerateThemeResourceFile"
+          DependsOnTargets="ResolveProjectReferences"
+          BeforeTargets="BeforeBuild"
+          Inputs="@(ThemeResourceMergeInput)"
+          Outputs="$(IntermediateOutputPath)\ThemeResources\GenerateThemeResourceFile.write.1u.tlog"
+          Condition="'$(Configuration)'=='Debug'">
+    <ItemGroup>
+      <ExcludedTemplates Include="$(MSBuildThisFileDirectory)Resources\PriorityDefault\RadioMenuFlyoutItem_themeresources.xaml" />
+      <ExcludedTemplates Include="$(MSBuildThisFileDirectory)Resources\PriorityDefault\ProgressRing.xaml" />
+      <ExcludedTemplates Include="$(MSBuildThisFileDirectory)Resources\PriorityDefault\ScrollViewer.xaml" />
+      <ExcludedTemplates Include="$(MSBuildThisFileDirectory)Resources\PriorityDefault\ScrollViewer_themeresources.xaml" />
+	  <!-- UNO TODO Fails to display correctly for multiple reasons, including https://github.com/unoplatform/uno/issues/325 but also undiagnosed issues -->
+      <ExcludedTemplates Include="$(MSBuildThisFileDirectory)Resources\PriorityDefault\SplitView_themeresources.xaml" />
+      <WinUIStylePage
+		  Include="$(MSBuildThisFileDirectory)Resources\**\*.xaml" />
+      <WinUIStylePage
+		  Remove="@(ExcludedTemplates)" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Generating theme resources XAML file " />
+    <MakeDir Directories="$(IntermediateOutputPath)\ThemeResources" />
+    <BatchMergeXaml
+	  Pages="@(WinUIStylePage)"
+	  MergedXamlFile="$(MSBuildThisFileDirectory)themeresources.xaml"
+	  TlogReadFilesOutputPath="$(IntermediateOutputPath)\ThemeResources\GenerateThemeResourceFile.read.1u.tlog"
+	  TlogWriteFilesOutputPath="$(IntermediateOutputPath)\ThemeResources\GenerateThemeResourceFile.write.1u.tlog" />
+    <Message Text="Theme resources XAML file was generated" />
+  </Target>
+
   <PropertyGroup Condition="'$(UnoRuntimeIdentifier)'=='Reference'">
 	<EnableAutomaticXamlPageInclusion>false</EnableAutomaticXamlPageInclusion>
   </PropertyGroup>
