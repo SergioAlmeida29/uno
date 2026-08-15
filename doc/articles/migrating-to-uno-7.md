@@ -506,10 +506,10 @@ New apps get Skia heads only. Existing apps should drop native `*.Mobile` / nati
    `AppBuilder` delegate to the base constructor.
 10. Re-baseline visual/snapshot tests and re-test text, lists/scroll, IME, pickers, and
    safe-area/notch handling on devices.
-10. On Android, application settings move out of the default `SharedPreferences` into the
+11. On Android, application settings move out of the default `SharedPreferences` into the
     `UnoApplicationData` file automatically on first access — update any native code that read
     them from the default preferences.
-11. On iOS/tvOS/Mac Catalyst, application settings move to the `UnoApplicationData`
+12. On iOS/tvOS/Mac Catalyst, application settings move to the `UnoApplicationData`
     container automatically on first access — update any native/interop code that read them
     from `NSUserDefaults.StandardUserDefaults`.
 
