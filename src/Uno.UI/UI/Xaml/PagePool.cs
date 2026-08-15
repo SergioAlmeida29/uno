@@ -37,9 +37,7 @@ namespace Microsoft.UI.Xaml
 		{
 			_watch.Start();
 
-#if !IS_UNIT_TESTS
 			_ = CoreDispatcher.Main.RunIdleAsync(Scavenger);
-#endif
 		}
 
 		private async void Scavenger(IdleDispatchedHandlerArgs e)
